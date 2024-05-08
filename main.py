@@ -3,6 +3,6 @@ from fastapi import FastAPI
 
 app = FastAPI()
 
-@app.get("/")
-def read_root():
+@app.get("/product/")
+def getProducts():
     return {"Hello": "World"}
