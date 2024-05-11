@@ -33,16 +33,27 @@ def read_productAll():
 
 @app.post("/product/")
 def insert_product(data: product):
-    return {}
+    name = data.name
+    description = data.description
+    company = data.company
+    price = data.price
+    units = data.units
+    subcategory_id = data.subcategory_id
+    created_at = data.created_at
+    updated_at = data.updated_at
+    ins_product = botiga_db.insert_product(name, description, company, price, units, subcategory_id,  created_at, updated_at)
+    return {
+        "S'ha afegit": "correctament!"
+        }
 
 @app.put("/product/producte/{id}")
-def update_product(criteri):
-    #pelis_db.update_vots(id, criteri)
-    return {}
+def update_product(id:int, price:float):
+    botiga_db.update_product(id, price)
+    return { "S'ha afegit": "correctament!"}
 
 @app.delete("/product/{id}")
 def delete_product(id:int):
-    pelis_db.delete_peli(id)
+    botiga_db.delete_product(id)
     return {
-        "msg": "data eliminated!!"
+        "S'ha eliminat": "correctament!"
     }
