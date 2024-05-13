@@ -19,14 +19,23 @@ def read():
     return list_prod
 
 def produc_dict(prod) -> dict:
-    return {"name": prod[0], 
-            "description": prod[1], 
-            "company": prod[2], 
-            "price": prod[3], 
-            "units": prod[4], 
-            "subcategory_id": prod[5], 
-            "created_at": prod[6], 
-            "updated_at": prod[7]
+    return {"product_id": prod[0],
+            "name": prod[1], 
+            "description": prod[2], 
+            "company": prod[3], 
+            "price": prod[4], 
+            "units": prod[5], 
+            "subcategory_id": prod[6], 
+            "created_at": prod[7], 
+            "updated_at": prod[8]
+        }
+
+def produc_dict_join(prod) -> dict:
+    return {"category": prod[0],
+            "subcategory": prod[1], 
+            "product": prod[2], 
+            "company": prod[3], 
+            "price": prod[4]
         }
 
 def read_one(id):
@@ -34,41 +43,72 @@ def read_one(id):
     try:
         conn = conect()
         cur = conn.cursor()
-        query = "select * from PELICULA where id = %s;"
+        query = "select * from product where product_id = %s;"
         cur.execute(query, (id,))
         result = cur.fetchone()
-        prod.append(result[0])
-        prod.append(result[1])
-        prod.append(result[2])
-        prod.append(result[3])
-        prod.append(result[4])
+        if result is not None:
+            prod.append(result[0])
+            prod.append(result[1])
+            prod.append(result[2])
+            prod.append(result[3])
+            prod.append(result[4])
+            prod.append(result[5])
+            prod.append(result[6])
+            prod.append(result[7])
+            prod.append(result[8])
+        else:
+            return {"status": -1, "message": f"No se encontró ningún producto con el ID {id}"}
     except Exception as e:
         return {"status": -1, "message": f"Error de connexió:{e}" }
     finally:
         conn.close()
     return produc_dict(prod)
 
-def insert_product(name, description, company, price, units, subcategory_id,  created_at, updated_at):
-    try: 
+def readAll():
+    try:
         conn = conect()
         cur = conn.cursor()
-        query = "insert into product (name, description, company, price, units, subcategory_id,  created_at, updated_at) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
-        values = (name, description, company, price, units, subcategory_id,  created_at, updated_at)
-        cur.execute(query, values)
+        query = """
+            SELECT c.name as cate, s.name as subcate p.name as product, p.company as marca, p.price as precio
+            FROM product p
+            INNER JOIN subcategory s ON p.subcategory_id = s.subcategory_id
+            INNER JOIN category c ON s.category_id = c.category_id
+        """
+        cur.execute(query)
+        result = cur.fetchall()
+        
+        list_prod = []
+        for prod in result:
+            dict_prod = produc_dict_join(prod)
+            list_prod.append(dict_prod)
 
-        conn.commit()
-        film_id=cur.lastrowid
     except Exception as e:
         return {"status": -1, "message": f"Error de connexió:{e}" }
     finally:
         conn.close()
-    return film_id
+    return
+
+def insert_product(name, description, company, price, units, subcategory_id, created_at, updated_at):
+    try: 
+        conn = conect()
+        cur = conn.cursor()
+        query = "insert into product (name, description, company, price, units, subcategory_id,  created_at, updated_at) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+        values = (name, description, company, price, units, subcategory_id, created_at, updated_at)
+        cur.execute(query, values)
+
+        conn.commit()
+        id_product=cur.lastrowid
+    except Exception as e:
+        return {"status": -1, "message": f"Error de connexió:{e}" }
+    finally:
+        conn.close()
+    return id_product
 
 def update_product(id, price):
     try:
         conn = conect()
         cur = conn.cursor()
-        query = "update producte SET price = %s WHERE id = %s;"
+        query = "update product SET price = %s WHERE product_id = %s;"
         values  = (price, id)
         cur.execute(query, values)
 
@@ -82,7 +122,7 @@ def delete_product(id):
     try:
         conn = conect()
         cur = conn.cursor()
-        query = "delete from product where id = %s;"
+        query = "delete from product where product_id = %s;"
         cur.execute(query, (id,))
 
         conn.commit()
