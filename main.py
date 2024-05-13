@@ -25,14 +25,14 @@ def getProducts():
 
 @app.get("/product/{id}")
 def read_product(id: int):
-    return botiga_db.read_one()
+    return botiga_db.read_one(id)
 
 @app.get("/productAll/")
 def read_productAll():
-    return {}
+    return botiga_db.readAll()
 
 @app.post("/product/")
-def insert_product(data: product):
+async def insert_product(data: product):
     name = data.name
     description = data.description
     company = data.company
@@ -43,7 +43,9 @@ def insert_product(data: product):
     updated_at = data.updated_at
     ins_product = botiga_db.insert_product(name, description, company, price, units, subcategory_id,  created_at, updated_at)
     return {
-        "S'ha afegit": "correctament!"
+        "S'ha afegit": "correctament!",
+        "id_product": ins_product,
+        "Producte": name
         }
 
 @app.put("/product/producte/{id}")
