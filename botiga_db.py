@@ -68,12 +68,8 @@ def readAll():
     try:
         conn = conect()
         cur = conn.cursor()
-        query = """
-            SELECT c.name as cate, s.name as subcate p.name as product, p.company as marca, p.price as precio
-            FROM product p
-            INNER JOIN subcategory s ON p.subcategory_id = s.subcategory_id
-            INNER JOIN category c ON s.category_id = c.category_id
-        """
+        query = "SELECT c.name AS cat, s.name AS subcat, p.name AS prod, p.company AS empresa, p.price AS preu FROM product p INNER JOIN subcategory s ON p.subcategory_id = s.subcategory_id INNER JOIN category c ON s.category_id = c.category_id"
+        
         cur.execute(query)
         result = cur.fetchall()
         
@@ -86,7 +82,7 @@ def readAll():
         return {"status": -1, "message": f"Error de connexió:{e}" }
     finally:
         conn.close()
-    return
+    return list_prod
 
 def insert_product(name, description, company, price, units, subcategory_id, created_at, updated_at):
     try: 
@@ -128,5 +124,14 @@ def delete_product(id):
         conn.commit()
     except Exception as e:
          return { "status": -1, "message": f"Error de conexió:{e}"}
+    finally:
+         conn.close()
+
+def inser_all():
+    try:
+        conn = conect()
+        cur = conn.cursor()
+    except Exception as e:
+        return { "status": -1, "message": f"Error de conexió:{e}"}
     finally:
          conn.close()
