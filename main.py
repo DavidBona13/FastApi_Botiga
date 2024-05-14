@@ -62,5 +62,8 @@ def delete_product(id:int):
 
 @app.post("/loadProducts")
 def insert_csv():
+    #arxiu = "FastApi_Botiga/llista_productes.csv"
     botiga_db.insert_all()
-    
+    return {
+        "S'ha realitzat": "correctament!"
+    }
