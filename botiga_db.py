@@ -127,10 +127,62 @@ def delete_product(id):
     finally:
          conn.close()
 
-def inser_all():
+def insert_all():
     try:
         conn = conect()
         cur = conn.cursor()
+        with open("FastApi_Botiga/llista_productes.csv", "r", encoding="UTF-8") as fitxer:
+            saltLinia = fitxer.readline()
+            linia = fitxer.readline()
+            list_elements = []
+            while linia:
+                list_elements = linia.split(",")
+                query = "SELECT category_id FROM category where category_id = %s"
+                value = (list_elements[0])
+                cur.execute(query, value)
+                cat = cur.fetchone()
+                if cat is None:
+                    query = "INSERT INTO category(category_id, name) VALUES (%s, %s)"
+                    values = (list_elements[0], list_elements[1])
+                    cur.execute(query, values)
+                    conn.commit()
+                else:
+                    query = "UPDATE category SET name = %s WHERE category_id = %s"
+                    values = (list_elements[1], list_elements[0])
+                    cur.execute(query, values)
+                    conn.commit()
+                #######################################################################
+                query = "SELECT subcategory_id FROM subcategory where subcategory_id = %s"
+                value = (list_elements[2])
+                cur.execute(query, value)
+                subcat = cur.fetchone()
+                if subcat is None:
+                    query = "INSERT INTO subcategory(subcategory_id, name, category_id) VALUES (%s, %s, %s)"
+                    values = (list_elements[2], list_elements[3], list_elements[0])
+                    cur.execute(query, values)
+                    conn.commit()
+                else:
+                    query = "UPDATE subcategory SET name = %s, category_id = %s WHERE subcategory_id = %s"
+                    values = (list_elements[3], list_elements[0], list_elements[2])
+                    cur.execute(query, values)
+                    conn.commit()
+                ##########################################################################
+                query = "SELECT product_id FROM product WHERE product_id = %s"
+                value = (list_elements[4])
+                cur.execute(query, value)
+                prod = cur.fetchone()
+                if prod is None:
+                    query = "INSERT INTO product(product_id, name, description, company, price, units, subcategory_id) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+                    values = (list_elements[4], list_elements[5], list_elements[6], list_elements[7], list_elements[8], list_elements[9], list_elements[2])
+                    cur.execute(query, values)
+                    conn.commit()
+                else:
+                    query = "UPDATE product SET name = %s, description = %s, company = %s, price = %s, units = %s, subcategory_id = %s WHERE product_id = %s"
+                    values = (list_elements[5], list_elements[6], list_elements[7], list_elements[8], list_elements[9], list_elements[2], list_elements[4])
+                    cur.execute(query, values)
+                    conn.commit()
+                    
+                linia = fitxer.readline()
     except Exception as e:
         return { "status": -1, "message": f"Error de conexió:{e}"}
     finally:
