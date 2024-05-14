@@ -59,3 +59,8 @@ def delete_product(id:int):
     return {
         "S'ha eliminat": "correctament!"
     }
+
+@app.post("/loadProducts")
+def insert_csv():
+    botiga_db.insert_all()
+    
