@@ -1,5 +1,6 @@
 from connexio import conect
 
+#Mètode que llegueix tots el productes.
 def read():
     try:
         conn = conect()
@@ -18,6 +19,7 @@ def read():
         conn.close()
     return list_prod
 
+#Mètode que retorna un to_dict del objecte producte
 def produc_dict(prod) -> dict:
     return {"product_id": prod[0],
             "name": prod[1], 
@@ -30,6 +32,7 @@ def produc_dict(prod) -> dict:
             "updated_at": prod[8]
         }
 
+#Mètode to_dict que retorna el dict personalitzat del mètode readAll
 def produc_dict_join(prod) -> dict:
     return {"category": prod[0],
             "subcategory": prod[1], 
@@ -38,6 +41,7 @@ def produc_dict_join(prod) -> dict:
             "price": prod[4]
         }
 
+#Mètode que retornar un producte, buscat pel seu id.
 def read_one(id):
     prod = []
     try:
@@ -64,6 +68,7 @@ def read_one(id):
         conn.close()
     return produc_dict(prod)
 
+#Mètode que busca el nom de la categoria i subcategoria, a més de tots els camps de producte, a través d'una consulta amb joins
 def readAll():
     try:
         conn = conect()
@@ -84,6 +89,7 @@ def readAll():
         conn.close()
     return list_prod
 
+#Mètode per inserir un producte nou a la base de dades.
 def insert_product(name, description, company, price, units, subcategory_id, created_at, updated_at):
     try: 
         conn = conect()
@@ -100,6 +106,7 @@ def insert_product(name, description, company, price, units, subcategory_id, cre
         conn.close()
     return id_product
 
+#Mètode que permet modificar el preu d'un producte.
 def update_product(id, price):
     try:
         conn = conect()
@@ -114,6 +121,7 @@ def update_product(id, price):
     finally:
         conn.close()
     
+#Mètode que eliminar un producte de la base de dades a través del id.
 def delete_product(id):
     try:
         conn = conect()
@@ -127,6 +135,7 @@ def delete_product(id):
     finally:
          conn.close()
 
+#Mètode que obre un arxiu .csv i dins d'un while va fent crides de mètodes per poder inserir o modificar totes les taules de la base de dades 'botiga.'
 def insert_all():
     with open("llista_productes.csv", "r") as fitxer:
         saltLinia = fitxer.readline()
@@ -151,6 +160,7 @@ def insert_all():
                 uptProd = upt_prod(list_elements[5], list_elements[6], list_elements[7], list_elements[8], list_elements[9], list_elements[2], list_elements[4])
             linia = fitxer.readline()
 
+#Els mètodes id_cat, id_subcat i id_prod retornen un id (si existeix), aquests mètodes son utilitzats en el mètode 'insert_all'
 def id_cat(id):
     try:
         conn = conect()
@@ -190,6 +200,7 @@ def id_prod(id):
          conn.close()
     return cat
 
+#Els mètodes ins_cat, ins_subcat i ins_prod es dedican a inserir a la base de dades 'botiga' totes les dades de l'arxiu .csv que no estan inserides a la base de dades.
 def ins_cat(id, name):
     try:
         conn = conect()
@@ -225,7 +236,8 @@ def ins_prod(id, name, descripcio, company, preu, units, subcat_id):
         return { "status": -1, "message": f"Error de conexió:{e}"}
     finally:
          conn.close()
-        
+
+#Els mètodes upt_cat, upt_subcat i upt_prod modifiquen totes de les dades de la base de dades 'botiga', sempre i quan l'id ja estigui inserit.        
 def upt_cat(name, id):
     try:
         conn = conect()

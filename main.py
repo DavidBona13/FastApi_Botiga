@@ -19,18 +19,22 @@ class product(BaseModel):
     created_at: datetime
     updated_at: datetime
 
+#Endpoint per obtenir el productes
 @app.get("/product/")
 def getProducts():
     return botiga_db.read()
 
+#Endpoint obtenció de productes per id
 @app.get("/product/{id}")
 def read_product(id: int):
     return botiga_db.read_one(id)
 
+#Endpoint per obtenir 
 @app.get("/productAll/")
 def read_productAll():
     return botiga_db.readAll()
 
+#Endpoint que permet inserir un nou producte.
 @app.post("/product/")
 async def insert_product(data: product):
     name = data.name
@@ -48,11 +52,13 @@ async def insert_product(data: product):
         "Producte": name
         }
 
+#Endpoint que permet modificar el preu d'un producte.
 @app.put("/product/producte/{id}")
 def update_product(id:int, price:float):
     botiga_db.update_product(id, price)
     return { "S'ha afegit": "correctament!"}
 
+#Endpoint que permet eliminar un producte pel seu id.
 @app.delete("/product/{id}")
 def delete_product(id:int):
     botiga_db.delete_product(id)
@@ -60,6 +66,7 @@ def delete_product(id:int):
         "S'ha eliminat": "correctament!"
     }
 
+#Endpoint amb el async() que crida al mètode insert.all de la clase botiga_db i permet inserir o modificar les dades d'un arxiu .csv a la base de dades botiga.
 @app.post("/loadProducts")
 async def insert_csv():
     inst_all = botiga_db.insert_all()
