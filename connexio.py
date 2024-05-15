@@ -1,5 +1,6 @@
 import mysql.connector
 
+#Mètode amb les dades de la base de dades, usuari, contrasenya, host i el port, per poder realitzar la connexió a la base de dades.
 def conect():
     try:
         dbname = "botiga"
