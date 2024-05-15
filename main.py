@@ -34,7 +34,7 @@ def read_product(id: int):
 def read_productAll():
     return botiga_db.readAll()
 
-#Endpoint que permet inserir un nou producte.
+#Endpoint que permet inserir un nou producte. el async permet que altres operacions treballin en paral·lel.
 @app.post("/product/")
 async def insert_product(data: product):
     name = data.name

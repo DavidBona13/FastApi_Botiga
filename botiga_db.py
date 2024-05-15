@@ -9,6 +9,7 @@ def read():
 
         result = cur.fetchall()
         list_prod = []
+        #Recorrem el fetchall i anem convertint-ho a un diccionari i just després ho afegim a una llista.
         for prod in result:
             dict_prod = produc_dict(prod)
             list_prod.append(dict_prod)
@@ -50,6 +51,7 @@ def read_one(id):
         query = "select * from product where product_id = %s;"
         cur.execute(query, (id,))
         result = cur.fetchone()
+        #Si el result no esta buit vol dir que te un element, afegim l'element a una llista
         if result is not None:
             prod.append(result[0])
             prod.append(result[1])
@@ -66,6 +68,7 @@ def read_one(id):
         return {"status": -1, "message": f"Error de connexió:{e}" }
     finally:
         conn.close()
+    #Ho pasem a un diccionari pasant-li la llista a la crida del mètode.
     return produc_dict(prod)
 
 #Mètode que busca el nom de la categoria i subcategoria, a més de tots els camps de producte, a través d'una consulta amb joins
@@ -73,11 +76,13 @@ def readAll():
     try:
         conn = conect()
         cur = conn.cursor()
+        #Fem dos inner join relacionant el subcategory_id de product amb el de subcategory, i el category_id de subcategory al category_id de category.
         query = "SELECT c.name AS cat, s.name AS subcat, p.name AS prod, p.company AS empresa, p.price AS preu FROM product p INNER JOIN subcategory s ON p.subcategory_id = s.subcategory_id INNER JOIN category c ON s.category_id = c.category_id"
         
         cur.execute(query)
         result = cur.fetchall()
         
+        #Recorrem el resultat, i fem el mateix que en el mètode read, però, aquesta vegada cridant el mètode to_dict especial(produc_dict_join()), ja què conté camps de 3 taules diferents.
         list_prod = []
         for prod in result:
             dict_prod = produc_dict_join(prod)
@@ -96,9 +101,11 @@ def insert_product(name, description, company, price, units, subcategory_id, cre
         cur = conn.cursor()
         query = "insert into product (name, description, company, price, units, subcategory_id,  created_at, updated_at) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
         values = (name, description, company, price, units, subcategory_id, created_at, updated_at)
+        #Fem el execute i li pasem com a paràmetres la query i els values
         cur.execute(query, values)
 
         conn.commit()
+        #busquem l'ùltim id 
         id_product=cur.lastrowid
     except Exception as e:
         return {"status": -1, "message": f"Error de connexió:{e}" }
@@ -137,23 +144,24 @@ def delete_product(id):
 
 #Mètode que obre un arxiu .csv i dins d'un while va fent crides de mètodes per poder inserir o modificar totes les taules de la base de dades 'botiga.'
 def insert_all():
+    #Obrim l'arxiu .csv
     with open("llista_productes.csv", "r") as fitxer:
-        saltLinia = fitxer.readline()
-        linia = fitxer.readline()
+        saltLinia = fitxer.readline() #Ens saltem la primera linia ja que no ens interesa
+        linia = fitxer.readline() #Treballem amb aquesta linia
         list_elements = []
         while linia:
-            list_elements = linia.split(",")
-            idCat = id_cat(list_elements[0])
-            if idCat is None:
+            list_elements = linia.split(",") #Fem un split separant els elements per comes, ja que la coma diferencià les columnes(en aquest cas).
+            idCat = id_cat(list_elements[0]) #Al mètode de consulta per id li pasem el id de category
+            if idCat is None: #Si el return es null fa un insert, cridant al mètode ins_cat, sino, fa un update.
                 insCat = ins_cat(list_elements[0], list_elements[1])
             else:
                 uptCat = upt_cat(list_elements[1], list_elements[0])
-            idSubcat = id_subcat(list_elements[2])
+            idSubcat = id_subcat(list_elements[2]) #Es repeteix el procediment per subcategory.
             if idSubcat is None:
                 insSubcat = ins_subcat(list_elements[2], list_elements[3], list_elements[0])
             else:
                 uptSubcat = upt_subcat(list_elements[3], list_elements[0], list_elements[2])
-            idProd = id_prod(list_elements[4])
+            idProd = id_prod(list_elements[4]) #Es repeteix el procediment per product
             if idProd is None:
                 insProd = ins_prod(list_elements[4], list_elements[5], list_elements[6], list_elements[7], list_elements[8], list_elements[9], list_elements[2])
             else:
